@@ -56,7 +56,7 @@ body{background:var(--night);color:var(--ink);font-family:var(--body);overflow:h
 .gi-th{position:absolute;left:11.5px;top:-24px;width:1px;height:calc(var(--d) + 26px);background:rgba(190,205,255,.45)}
 .gi b{font-family:var(--title);letter-spacing:-.02em;font-weight:400;font-size:20px;line-height:1.1;color:#dfe6ff}
 .gi span{font-size:14px;line-height:1.55;color:#aeb6d0;text-wrap:pretty}
-@media(max-width:760px){.gar-row{grid-template-columns:1fr;gap:22px;padding-top:0;margin-bottom:22px;border-left:1px solid rgba(190,205,255,.35);margin-left:11px;padding-left:24px}.gar-line,.gi-th{display:none}.gi{padding-top:0}.gi .gs{left:-36px;top:0;width:22px;height:22px}}
+@media(max-width:760px){.gar-row{grid-template-columns:1fr;gap:22px;padding-top:0;margin-bottom:0;padding-bottom:22px;border-left:1px solid rgba(190,205,255,.35);margin-left:11px;padding-left:24px}.gar-line,.gi-th{display:none}.gi{padding-top:0}.gi .gs{left:-36px;top:0;width:22px;height:22px}.gar-row:last-child{padding-bottom:0}}
 .cons{position:relative;height:860px}
 .ab-idea{position:absolute;left:7%;top:0;width:min(380px,36%)}
 .ab-idea .pg-p{font-size:13.5px;line-height:1.55;margin-bottom:6px}
@@ -1379,6 +1379,9 @@ let dl=null; (async()=>{ try{ dl=window.claude?.use?await window.claude.use('dow
 function blobSave(name,data){ try{ const type=/\.pdf$/.test(name)?'application/pdf':/\.csv$/.test(name)?'text/csv':/\.md$/.test(name)?'text/markdown':'text/html';
   const u=URL.createObjectURL(new Blob([data],{type:type+';charset=utf-8'})); const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); return true; }catch(e){ return false; } }
 async function saveDoc(name,html,btnEl){ const st=document.getElementById('dlStatus');
+  /* на GitHub чек-лист лежит рядом с сайтом отдельным PDF: скачиваем его по ссылке */
+  if(!dl&&STANDALONE&&/\.pdf$/.test(name)){ const url=lang==='en'?'ntm-checklist-en.pdf':'ntm-checklist-ru.pdf';
+    try{ const r=await fetch(url,{method:'HEAD'}); if(r.ok&&!/html/.test(r.headers.get('content-type')||'')){ const a=document.createElement('a'); a.href=url; a.download=url.replace('ntm','NTM'); document.body.appendChild(a); a.click(); a.remove(); st.textContent=t('dl_ok'); return; } }catch(e){} }
   if(!dl){ st.textContent=STANDALONE&&blobSave(name,html)?t('dl_ok'):t('dl_na'); return; }
   try{ await dl.save({filename:name,data:html}); st.textContent=t('dl_ok'); }
   catch(e){ st.textContent=e&&e.code==='declined'?t('dl_no'):t('dl_err'); } }
