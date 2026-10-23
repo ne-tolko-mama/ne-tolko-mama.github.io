@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ne-tolko-mama.github.io/sitemap.xml
